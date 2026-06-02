@@ -8,3 +8,4 @@ def test_add_success():
 
 def test_add_failure():
     assert add(2, 2) != 5
+# cool
