@@ -16,6 +16,9 @@ WiFiServer server(80);
 // =========================================
 const int SensorNumber = 1;    // Please enter a whole Number and Signify on the Sensor which # this is
 
+
+//Setting unique Static IP address for sensor
+IPAddress localIP(192, 168, 0, 202);
 // Setting unique Static IP address for sensor
 IPAddress localIP(192, 168, 0, 200 + SensorNumber);
 IPAddress gateway(192, 168, 0, 1);
@@ -25,6 +28,7 @@ IPAddress dns(8, 8, 8, 8);
 void setup() {
   Serial.begin(115200);
   cpu.begin();
+  Serial.println("I am Alive");
   WiFi.config(localIP, gateway, subnet);
 
   WiFi.begin(ssid, password);
@@ -52,8 +56,8 @@ void loop() {
   WiFiClient client = server.available();
 
   tempC = cpu.getTemperature();
-  
-
+//    tempC = random(10, 99);
+    Serial.println(tempC);
   if (!client) {
     return;
   }
@@ -100,13 +104,13 @@ void loop() {
   //Begins a Javascript block in the webpage
   client.println("<script>");
 
-  client.println("async function GetData() {"); // Defines an asynchronous function
+  client.println("async function GetData() {");
   client.println("  let response = await fetch('/GetData');");
-  client.println("  let data = await response.text();");    // Waits for response from data and sets as text
+  client.println("  let data = await response.text();");
   client.println("  let parts = data.trim().split(',');");
-  client.println("  let SensorNumber = parts[0];");
+  client.println("  let sensorNumber = parts[0];");
   client.println("  let tempC = parts[1];");
-  client.println("  document.getElementById('tempC').innerText = tempC;");    // Finds HTML element and replaces text with new value
+  client.println("  document.getElementById('tempC').innerText = tempC + ' C';");
   client.println("}");
 
   // Runs on page loading and every second
@@ -122,7 +126,9 @@ void loop() {
 
   client.println("<p>");    // Starts Paragraph Block
   client.println("CPU Temperature: ");    // Static Label
-  client.println("<span id='tempC'>Loading...</span>");    // Says Loading then replaces
+  client.print(SensorNumber);
+  client.print(",");
+  client.println(tempC);
   client.println("</p>");   // Ends Paragraph Block
 
   client.println("</body>");
