@@ -16,9 +16,8 @@ WiFiServer server(80);
 // =========================================
 const int SensorNumber = 1;    // Please enter a whole Number and Signify on the Sensor which # this is
 
-
 // Setting unique Static IP address for sensor
-IPAddress localIP(192, 168, 1, 201);
+IPAddress localIP(192, 168, 0, 200 + SensorNumber);
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(8, 8, 8, 8);
@@ -72,8 +71,8 @@ void loop() {
     client.println("Connection: close");
     client.println();
 
-    client.println(SensorNumber);
-    client.println(",");
+    client.print(SensorNumber);
+    client.print(",");
     client.println(tempC);
 
     client.stop();
@@ -94,23 +93,25 @@ void loop() {
 
   // Head section
   client.println("<head>");
-  client.println("<title>Dashboard for Sensor ");
-  client.println(SensorNumber);
+  client.print("<title>Dashboard for Sensor ");
+  client.print(SensorNumber);
   client.println("</title>");
 
   //Begins a Javascript block in the webpage
   client.println("<script>");
 
-  client.println("async function GetData() {"); // Defines an asynchronous function XYZ
-  client.println("  let response = await fetch('/GetData');");    // Asks for ABC, which goes to earlier if statement
-  client.println("  let tempC = await response.text();");    // Waits for response from ABC and sets it as plain text
-  client.println("  document.getElementById('BLANK').innerText = BLANK;");    // Finds HTML element and replaces text with new value
-  client.println("}");    // Ends the XYZ function
+  client.println("async function GetData() {"); // Defines an asynchronous function
+  client.println("  let response = await fetch('/GetData');");
+  client.println("  let data = await response.text();");    // Waits for response from data and sets as text
+  client.println("  let parts = data.trim().split(',');");
+  client.println("  let SensorNumber = parts[0];");
+  client.println("  let tempC = parts[1];");
+  client.println("  document.getElementById('tempC').innerText = tempC;");    // Finds HTML element and replaces text with new value
+  client.println("}");
 
-  // Updating XYZ every second
-  client.println("setInterval(GetData, 1000);");
-  // Runs XYZ immediately when the page loads
+  // Runs on page loading and every second
   client.println("window.onload = GetData;");
+  client.println("setInterval(GetData, 1000);");
 
   // End Javascript Section
   client.println("</script>");
@@ -119,11 +120,9 @@ void loop() {
   client.println("</head>");
   client.println("<body>");
 
-  //client.println("</h1>");
-
   client.println("<p>");    // Starts Paragraph Block
   client.println("CPU Temperature: ");    // Static Label
-  client.println("<span id='tempC'>Loading...</span>");    // Says Loading then replaces with the Float value
+  client.println("<span id='tempC'>Loading...</span>");    // Says Loading then replaces
   client.println("</p>");   // Ends Paragraph Block
 
   client.println("</body>");
