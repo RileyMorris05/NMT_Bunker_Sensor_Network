@@ -17,8 +17,8 @@ WiFiServer server(80);
 const int SensorNumber = 1;    // Please enter a whole Number and Signify on the Sensor which # this is
 
 
-// Setting unique Static IP address for sensor
-IPAddress localIP(192, 168, 1, 201);
+//Setting unique Static IP address for sensor
+IPAddress localIP(192, 168, 0, 202);
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(8, 8, 8, 8);
@@ -26,6 +26,7 @@ IPAddress dns(8, 8, 8, 8);
 void setup() {
   Serial.begin(115200);
   cpu.begin();
+  Serial.println("I am Alive");
   WiFi.config(localIP, gateway, subnet);
 
   WiFi.begin(ssid, password);
@@ -53,8 +54,8 @@ void loop() {
   WiFiClient client = server.available();
 
   tempC = cpu.getTemperature();
-  
-
+//    tempC = random(10, 99);
+    Serial.println(tempC);
   if (!client) {
     return;
   }
@@ -101,11 +102,15 @@ void loop() {
   //Begins a Javascript block in the webpage
   client.println("<script>");
 
-  client.println("async function GetData() {"); // Defines an asynchronous function XYZ
-  client.println("  let response = await fetch('/GetData');");    // Asks for ABC, which goes to earlier if statement
-  client.println("  let tempC = await response.text();");    // Waits for response from ABC and sets it as plain text
-  client.println("  document.getElementById('BLANK').innerText = BLANK;");    // Finds HTML element and replaces text with new value
-  client.println("}");    // Ends the XYZ function
+  client.println("async function GetData() {");
+client.println("  let response = await fetch('/GetData');");
+client.println("  let data = await response.text();");
+client.println("  let parts = data.trim().split(',');");
+client.println("  let sensorNumber = parts[0];");
+client.println("  let tempC = parts[1];");
+client.println("  document.getElementById('tempC').innerText = tempC + ' C';");
+client.println("}");
+    // Ends the XYZ function
 
   // Updating XYZ every second
   client.println("setInterval(GetData, 1000);");
@@ -123,7 +128,9 @@ void loop() {
 
   client.println("<p>");    // Starts Paragraph Block
   client.println("CPU Temperature: ");    // Static Label
-  client.println("<span id='tempC'>Loading...</span>");    // Says Loading then replaces with the Float value
+client.print(SensorNumber);
+client.print(",");
+client.println(tempC);
   client.println("</p>");   // Ends Paragraph Block
 
   client.println("</body>");
