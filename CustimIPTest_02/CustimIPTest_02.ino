@@ -21,14 +21,16 @@ WiFiServer server(80);
 // =========================================
 // Sensor Configuration
 // =========================================
-const int SensorNumber = 1;    // Please enter a whole Number and Signify on the Sensor which # this is
+const int SensorNumber = 3;    // Please enter a whole Number and Signify on the Sensor which # this is
 //
 
 
 
 
 //Setting unique Static IP address for sensor
-IPAddress localIP(192, 168, 0, 202);
+//IPAddress localIP(192, 168, 0, 202);
+// Setting unique Static IP address for sensor
+IPAddress localIP(192, 168, 0, 200 + SensorNumber);
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(8, 8, 8, 8);
@@ -105,6 +107,7 @@ void loop() {
 
     client.print(SensorNumber);
     client.print(",");
+<<<<<<< HEAD
     client.print(tempC);
     client.print(",");
     client.print(o2Percent);
@@ -120,6 +123,9 @@ void loop() {
     client.print(multichannelGasSensor);
     client.print(",");
     client.println(airQualitySensor);
+=======
+    client.println(tempC);
+>>>>>>> a24e164a92993011a0e0768ba8175d64d8d8ac52
 
     client.flush();
     delay(10);
@@ -141,14 +147,15 @@ void loop() {
 
   // Head section
   client.println("<head>");
-  client.println("<title>Dashboard for Sensor ");
-  client.println(SensorNumber);
+  client.print("<title>Dashboard for Sensor ");
+  client.print(SensorNumber);
   client.println("</title>");
 
   //Begins a Javascript block in the webpage
   client.println("<script>");
 
   client.println("async function GetData() {");
+<<<<<<< HEAD
   client.println("  let xhr = new XMLHttpRequest();");
   client.println("  xhr.onreadystatechange = function() {");
   client.println("    if (xhr.readyState == 4) {");
@@ -176,11 +183,19 @@ void loop() {
   client.println("  xhr.send();");
   client.println("}");
     // Ends the XYZ function
+=======
+  client.println("  let response = await fetch('/GetData');");
+  client.println("  let data = await response.text();");
+  client.println("  let parts = data.trim().split(',');");
+  client.println("  let sensorNumber = parts[0];");
+  client.println("  let tempC = parts[1];");
+  client.println("  document.getElementById('tempC').innerText = tempC + ' C';");
+  client.println("}");
+>>>>>>> a24e164a92993011a0e0768ba8175d64d8d8ac52
 
-  // Updating XYZ every second
-  client.println("setInterval(GetData, 1000);");
-  // Runs XYZ immediately when the page loads
+  // Runs on page loading and every second
   client.println("window.onload = GetData;");
+  client.println("setInterval(GetData, 1000);");
 
   // End Javascript Section
   client.println("</script>");
@@ -189,6 +204,7 @@ void loop() {
   client.println("</head>");
   client.println("<body>");
 
+<<<<<<< HEAD
   //client.println("</h1>");
 
   client.println("<p>");
@@ -235,6 +251,14 @@ void loop() {
   client.println("Air Quality Sensor: ");
   client.println("<span id='airQualitySensor'>Loading...</span>");
   client.println("</p>");
+=======
+  client.println("<p>");    // Starts Paragraph Block
+  client.println("CPU Temperature: ");    // Static Label
+  client.print(SensorNumber);
+  client.print(",");
+  client.println(tempC);
+  client.println("</p>");   // Ends Paragraph Block
+>>>>>>> a24e164a92993011a0e0768ba8175d64d8d8ac52
 
   client.println("</body>");
   client.println("</html>");
